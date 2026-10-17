@@ -1,0 +1,29 @@
+name: Demo — safe staging plan
+
+on:
+  pull_request:
+    paths:
+      - "demo-plans/safe-staging-change/**"
+      - "scripts/review.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+      - name: Generate a real Terraform plan
+        working-directory: demo-plans/safe-staging-change
+        run: |
+          terraform init -input=false
+          terraform plan -input=false -out=tfplan
+          terraform show -json tfplan > tfplan.json
+      - name: Review generated plan with Jev
+        env:
+          JEV_API_KEY: ${{ secrets.JEV_API_KEY }}
+          TF_ENVIRONMENT: staging
+        run: python3 scripts/review.py --plan demo-plans/safe-staging-change/tfplan.json --environment "$TF_ENVIRONMENT"
