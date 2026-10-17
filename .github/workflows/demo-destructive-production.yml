@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     services:
       localstack:
-        image: localstack/localstack:latest
+        image: localstack/localstack:community-archive
         ports: ["4566:4566"]
         env:
           SERVICES: s3
