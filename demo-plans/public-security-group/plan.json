@@ -1,0 +1,19 @@
+{
+  "format_version": "1.2",
+  "terraform_version": "1.11.2",
+  "resource_changes": [
+    {
+      "address": "aws_security_group.public_web",
+      "mode": "managed",
+      "type": "aws_security_group",
+      "name": "public_web",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": ["create"],
+        "before": null,
+        "after": {"name": "demo-public-web", "description": "DEMO ONLY: public HTTPS exposure"},
+        "after_unknown": {"id": true}
+      }
+    }
+  ]
+}
