@@ -3,14 +3,14 @@
   "terraform_version": "1.11.2",
   "resource_changes": [
     {
-      "address": "aws_db_instance.primary",
+      "address": "aws_s3_bucket.production_primary[0]",
       "mode": "managed",
-      "type": "aws_db_instance",
-      "name": "primary",
+      "type": "aws_s3_bucket",
+      "name": "production_primary",
       "provider_name": "registry.terraform.io/hashicorp/aws",
       "change": {
         "actions": ["delete"],
-        "before": {"identifier": "production-primary", "engine": "postgres", "skip_final_snapshot": false},
+        "before": {"bucket": "jev-reviewer-production-primary-demo", "force_destroy": true},
         "after": null,
         "after_unknown": {}
       }
