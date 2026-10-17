@@ -8,6 +8,7 @@ requires a human review even when Jev is confident.
 python3 scripts/review.py --plan demo-plans/public-security-group/plan.json --environment staging --offline
 ```
 
-The accompanying `main.tf` shows the Terraform configuration represented by the
-review artifact. The literal AWS credentials are inert placeholders for local
-planning only, and must never be replaced by real credentials in source control.
+The PR workflow starts LocalStack, generates a fresh plan from `main.tf`, and
+reviews that output. The literal AWS credentials are inert placeholders for the
+local AWS emulator only, and must never be replaced by real credentials in source
+control.
