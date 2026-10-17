@@ -2,7 +2,7 @@ name: Terraform review
 
 on:
   pull_request:
-    paths: ["**.tf", "**.tfvars", ".github/workflows/terraform-review.yml"]
+    paths: ["*.tf", "*.tfvars", ".github/workflows/terraform-review.yml"]
 
 permissions:
   contents: read

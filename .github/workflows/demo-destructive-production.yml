@@ -1,0 +1,39 @@
+name: Demo — destructive production plan
+
+on:
+  pull_request:
+    paths:
+      - "demo-plans/destructive-production-delete/**"
+      - "scripts/review.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    services:
+      localstack:
+        image: localstack/localstack:community-archive
+        ports: ["4566:4566"]
+        env:
+          SERVICES: s3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+      - name: Create disposable baseline infrastructure
+        working-directory: demo-plans/destructive-production-delete
+        run: |
+          terraform init -input=false
+          terraform apply -input=false -auto-approve -var='create_bucket=true'
+      - name: Generate the real destroy plan
+        working-directory: demo-plans/destructive-production-delete
+        run: |
+          terraform plan -input=false -out=tfplan -var='create_bucket=false'
+          terraform show -json tfplan > tfplan.json
+      - name: Review generated plan with Jev
+        env:
+          JEV_API_KEY: ${{ secrets.JEV_API_KEY }}
+          TF_ENVIRONMENT: production
+        run: python3 scripts/review.py --plan demo-plans/destructive-production-delete/tfplan.json --environment "$TF_ENVIRONMENT"
