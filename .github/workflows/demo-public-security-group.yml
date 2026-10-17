@@ -1,0 +1,35 @@
+name: Demo — public security-group plan
+
+on:
+  pull_request:
+    paths:
+      - "demo-plans/public-security-group/**"
+      - "scripts/review.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    services:
+      localstack:
+        image: localstack/localstack:community-archive
+        ports: ["4566:4566"]
+        env:
+          SERVICES: ec2
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+      - name: Generate a plan against LocalStack
+        working-directory: demo-plans/public-security-group
+        run: |
+          terraform init -input=false
+          terraform plan -input=false -out=tfplan
+          terraform show -json tfplan > tfplan.json
+      - name: Review generated plan with Jev
+        env:
+          JEV_API_KEY: ${{ secrets.JEV_API_KEY }}
+          TF_ENVIRONMENT: staging
+        run: python3 scripts/review.py --plan demo-plans/public-security-group/tfplan.json --environment "$TF_ENVIRONMENT"
