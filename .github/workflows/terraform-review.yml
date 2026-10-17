@@ -1,0 +1,25 @@
+name: Terraform review
+
+on:
+  pull_request:
+    paths: ["**.tf", "**.tfvars", ".github/workflows/terraform-review.yml"]
+
+permissions:
+  contents: read
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    # Configure this GitHub Environment with required reviewers for production.
+    environment: ${{ vars.TF_ENVIRONMENT || 'staging' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+      - run: terraform init -input=false
+      - run: terraform plan -input=false -out=tfplan
+      - run: terraform show -json tfplan > tfplan.json
+      - name: Jev IaC reviewer
+        env:
+          JEV_API_KEY: ${{ secrets.JEV_API_KEY }}
+          TF_ENVIRONMENT: ${{ vars.TF_ENVIRONMENT || 'staging' }}
+        run: python3 scripts/review.py --plan tfplan.json --environment "$TF_ENVIRONMENT"
